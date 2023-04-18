@@ -1,12 +1,15 @@
-const { expect } = require("Chai");
-const { ethers } = require("hardhat");
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { expect } from "chai";
+import { Contract, ContractFactory } from "ethers";
+import { ethers } from "hardhat";
 
 describe("MemberNFT コントラクト", function () {
-  let MemberNFT;
-  let memberNFT;
   const name = "MemberNFT";
   const symbol = "MEM";
-  let owner;
+
+  let MemberNFT: ContractFactory;
+  let memberNFT: Contract;
+  let owner: SignerWithAddress;
 
   beforeEach(async function () {
     [owner] = await ethers.getSigners();
