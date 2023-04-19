@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { Contract, ContractFactory, Signer } from "ethers";
+import { Contract, ContractFactory } from "ethers";
 import { ethers } from "hardhat";
 
 describe("MemberNFT コントラクト", function () {

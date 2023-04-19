@@ -1,6 +1,8 @@
+import { ethers } from "hardhat";
+
 const main = async () => {
-  MemberNFT = await ethers.getContractFactory("MemberNFT");
-  memberNFT = await MemberNFT.deploy();
+  const MemberNFT = await ethers.getContractFactory("MemberNFT");
+  const memberNFT = await MemberNFT.deploy();
   await memberNFT.deployed();
 
   console.log(`Contract deployed to: ${memberNFT.address}`);
@@ -11,7 +13,7 @@ const deploy = async () => {
     await main();
     process.exit(0);
   } catch (error) {
-    console.log(err);
+    console.log(error);
     process.exit(1);
   }
 };
