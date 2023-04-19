@@ -47,4 +47,10 @@ describe("MemberNFT コントラクト", function () {
       memberNFT.connect(addr1 as any).nftMint(addr1.address, tokenURI1)
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
+
+  it("NFT 作成後に 'TokenURIChanged' イベントが発行されるべき", async function () {
+    await expect(memberNFT.nftMint(addr1.address, tokenURI1))
+      .to.emit(memberNFT, "TokenURIChanged")
+      .withArgs(addr1.address, 1, tokenURI1);
+  });
 });
