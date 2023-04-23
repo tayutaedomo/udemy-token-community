@@ -16,7 +16,7 @@ const {
  */
 const config: HardhatUserConfig = {
   solidity: "0.8.9",
-  defaultNetwork: "sepolia",
+  // defaultNetwork: "sepolia", // Don't use in hardhat test
   networks: {
     sepolia: {
       url: SEPOLIA_API_URL,
