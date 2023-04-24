@@ -13,9 +13,10 @@ describe("TokenBank コントラクト", function () {
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
+  let addr3: SignerWithAddress;
 
   beforeEach(async function () {
-    [owner, addr1, addr2] = await ethers.getSigners();
+    [owner, addr1, addr2, addr3] = await ethers.getSigners();
     TokenBank = await ethers.getContractFactory("TokenBank");
     tokenBank = await TokenBank.deploy(name, symbol);
     await tokenBank.deployed();
@@ -34,6 +35,10 @@ describe("TokenBank コントラクト", function () {
     it("owner に総額が割り当てられるべき", async function () {
       const ownerBalance = await tokenBank.balanceOf(owner.address);
       expect(await tokenBank.totalSupply()).to.equal(ownerBalance);
+    });
+
+    it("預かっている Token の総額が 0 であるべき", async function () {
+      expect(await tokenBank.bankTotalDeposit()).to.equal(0);
     });
   });
 
@@ -71,6 +76,43 @@ describe("TokenBank コントラクト", function () {
       await expect(tokenBank.connect(addr1 as any).transfer(addr2.address, 100))
         .emit(tokenBank, "TokenTransfer")
         .withArgs(addr1.address, addr2.address, 100);
+    });
+  });
+
+  describe("Bank トランザクション", function () {
+    this.beforeEach(async function () {
+      await tokenBank.transfer(addr1.address, 500);
+      await tokenBank.transfer(addr2.address, 200);
+      await tokenBank.transfer(addr3.address, 100);
+      await tokenBank.connect(addr1 as any).deposit(100);
+      await tokenBank.connect(addr2 as any).deposit(200);
+    });
+
+    it("トークン預入が実行できるべき", async function () {
+      const addr1Balance = await tokenBank.balanceOf(addr1.address);
+      expect(addr1Balance).to.equal(400);
+
+      const addr1BankBalance = await tokenBank.bankBalanceOf(addr1.address);
+      expect(addr1BankBalance).to.equal(100);
+    });
+
+    it("預入後にもトークンを移転できるべき", async function () {
+      const startAddr1Balance = await tokenBank.balanceOf(addr1.address);
+      const startAddr2Balance = await tokenBank.balanceOf(addr2.address);
+
+      await tokenBank.connect(addr1 as any).transfer(addr2.address, 100);
+
+      const endAddr1Balance = await tokenBank.balanceOf(addr1.address);
+      const endAddr2Balance = await tokenBank.balanceOf(addr2.address);
+
+      expect(endAddr1Balance).to.equal(startAddr1Balance.sub(100));
+      expect(endAddr2Balance).to.equal(startAddr2Balance.add(100));
+    });
+
+    it("預入後には TokenDeposit イベントが発行されるべき", async function () {
+      await expect(tokenBank.connect(addr1 as any).deposit(100))
+        .emit(tokenBank, "TokenDeposit")
+        .withArgs(addr1.address, 100);
     });
   });
 });

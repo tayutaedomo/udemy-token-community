@@ -77,4 +77,25 @@ contract TokenBank {
         _balances[to] += amount;
         emit TokenTransfer(from, to, amount);
     }
+
+    /// @dev TokenBank が預かっている Token の総額を返す
+    function bankTotalDeposit() public view returns (uint256) {
+        return _bankTotalDeposit;
+    }
+
+    /// @dev TokenBank が預かっている指定のアドレスの Token 数を返す
+    function bankBalanceOf(address account) public view returns (uint256) {
+        return _tokenBankBalances[account];
+    }
+
+    /// @dev Token を預ける
+    function deposit(uint256 amount) public {
+        address from = msg.sender;
+        address to = owner;
+
+        _transfer(from, to, amount);
+        _tokenBankBalances[from] += amount;
+        _bankTotalDeposit += amount;
+        emit TokenDeposit(from, amount);
+    }
 }
