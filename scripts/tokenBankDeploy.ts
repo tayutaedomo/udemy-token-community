@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import "dotenv/config";
 
 const {
-  MEMBAI_MEMBER_NFT_ADDRESS,
+  MEMBER_NFT_ADDRESS,
   WALLET_ADDRESS_1,
   WALLET_ADDRESS_2,
   WALLET_ADDRESS_3,
   WALLET_ADDRESS_4,
 } = process.env;
 
-const memberNFTAddress = MEMBAI_MEMBER_NFT_ADDRESS;
+const memberNFTAddress = MEMBER_NFT_ADDRESS;
 
 const main = async () => {
   const addr1 = WALLET_ADDRESS_1;
