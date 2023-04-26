@@ -9,6 +9,27 @@ const memberNFTAddress = MEMBER_NFT_ADDRESS;
 const tokenBankAddress = TOKEN_BANK_ADDRESS;
 
 export default function Home() {
+  const [account, setAccount] = useState('')
+  const [chainId, setChainId] = useState(false)
+  const [tokenBalance, setTokenBalance] = useState('')
+  const [bankBalance, setBankBalance] = useState('')
+  const [bankTotalDeposit, setBankTotalDeposit] = useState('')
+  const [nftOwner, setNftOwner] = useState(false)
+  const [inputData, setInputData] = useState({ transferAddress: '', transferAmount: '', depositAmount: '', withdrawAmount: '' });
+  const [items, setItems] = useState([])
+  const mumbaiId = '0x13881'
+  const zeroAddress = "0x0000000000000000000000000000000000000000";
+
+  const checkMetaMaskInstalled =async () => {
+    const { ethereum } = window as any;
+    if (!ethereum) {
+      alert('MetaMask をインストールしてください！');
+    }
+  }
+  useEffect(() => {
+    checkMetaMaskInstalled();
+  }, []);
+
   return (
     <main className={'flex flex-col items-center bg-slate-100 text-blue-900 min-h-screen'}>
       <h2 className={'text-6xl font-bold my-12 mt-8'}>トークンコミュニティへようこそ！</h2>
