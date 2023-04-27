@@ -20,7 +20,7 @@ export default function Home() {
   const mumbaiId = '0x13881'
   const zeroAddress = "0x0000000000000000000000000000000000000000";
 
-  const checkMetaMaskInstalled =async () => {
+  const checkMetaMaskInstalled = async () => {
     const { ethereum } = window as any;
     if (!ethereum) {
       alert('MetaMask をインストールしてください！');
@@ -40,6 +40,17 @@ export default function Home() {
       }
     }
   }
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window as any;
+      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+      console.log(`account: ${accounts[0]}`);
+      setAccount(accounts[0]);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() => {
     checkMetaMaskInstalled();
     checkChainId();
@@ -60,6 +71,13 @@ export default function Home() {
           <polygon points="175 0, 350 0, 350 175, 175 175" stroke="black" fill="#90EE90" />
           <polygon points="175 175, 350 175, 350 350, 175 350" stroke="black" fill="#ffff00" />
         </svg>
+      </div>
+      <div className={'flex mt-1'}>
+        {account === '' ? (
+          <button className={'bg-transparent text-blue-700 font-semibold py-2 px-4 border border-blue-500 rounded hover:border-transparent hover:text-white hover:bg-blue-500 hover:cursor-pointer'} onClick={connectWallet}>
+            MetaMask を接続
+          </button>
+        ) : (<></>)}
       </div>
     </main>
   )
