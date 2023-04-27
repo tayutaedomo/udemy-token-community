@@ -46,9 +46,22 @@ export default function Home() {
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       console.log(`account: ${accounts[0]}`);
       setAccount(accounts[0]);
+
+        ethereum.on('accountsChanged', checkAccountChanged);
+        ethereum.on('chainChanged', checkChainId);
     } catch (error) {
       console.error(error);
     }
+  }
+
+  const checkAccountChanged = async () => {
+    setAccount('');
+    setNftOwner(false);
+    setItems([]);
+    setTokenBalance('');
+    setBankBalance('');
+    setBankTotalDeposit('');
+    setInputData({ transferAddress: '', transferAmount: '', depositAmount: '', withdrawAmount: '' });
   }
 
   useEffect(() => {
