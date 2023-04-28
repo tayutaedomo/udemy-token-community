@@ -4,8 +4,8 @@ import axios from 'axios'
 import MemberNFT from '../contracts/MemberNFT.json'
 import TokenBank from '../contracts/TokenBank.json'
 
-const memberNFTAddress = process.env.NEXT_PUBLIC_MEMBER_NFT_ADDRESS;
-const tokenBankAddress = process.env.NEXT_PUBLIC_TOKEN_BANK_ADDRESS;
+const memberNFTAddress = process.env.NEXT_PUBLIC_MEMBER_NFT_ADDRESS || '';
+const tokenBankAddress = process.env.NEXT_PUBLIC_TOKEN_BANK_ADDRESS || '';
 
 export default function Home() {
   const [account, setAccount] = useState('')
@@ -42,7 +42,7 @@ export default function Home() {
   const connectWallet = async () => {
     try {
       const { ethereum } = window as any;
-      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts: string[] = await ethereum.request({ method: 'eth_requestAccounts' });
       console.log(`account: ${accounts[0]}`);
       setAccount(accounts[0]);
 
@@ -64,6 +64,8 @@ export default function Home() {
         setBankTotalDeposit(totalDeposit.toNumber());
       }
 
+      checkNft(accounts[0]);
+
       ethereum.on('accountsChanged', checkAccountChanged);
       ethereum.on('chainChanged', checkChainId);
     } catch (error) {
@@ -79,6 +81,20 @@ export default function Home() {
     setBankBalance('');
     setBankTotalDeposit('');
     setInputData({ transferAddress: '', transferAmount: '', depositAmount: '', withdrawAmount: '' });
+  }
+
+  const checkNft = async (addr: string) => {
+    const { ethereum } = window as any;
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const signer = provider.getSigner();
+
+    const nftContract = new ethers.Contract(memberNFTAddress, MemberNFT.abi, signer);
+    const balance = await nftContract.balanceOf(addr);
+    console.log(`nftBalances: ${balance.toNumber()}`);
+
+    if (balance.toNumber() > 0) {
+      setNftOwner(true);
+    } else { ' ' }
   }
 
   useEffect(() => {
