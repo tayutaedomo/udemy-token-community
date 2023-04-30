@@ -7,6 +7,24 @@ import TokenBank from '../contracts/TokenBank.json'
 const memberNFTAddress = process.env.NEXT_PUBLIC_MEMBER_NFT_ADDRESS || '';
 const tokenBankAddress = process.env.NEXT_PUBLIC_TOKEN_BANK_ADDRESS || '';
 
+type MetaData = {
+  name: string;
+  description: string;
+  image: string;
+}
+
+type Meta = {
+  data: MetaData;
+}
+
+type Item = {
+  tokenId: any;
+  name: string;
+  description: string;
+  tokenURI: string;
+  imageURI: string;
+}
+
 export default function Home() {
   const [account, setAccount] = useState('')
   const [chainId, setChainId] = useState(false)
@@ -15,7 +33,7 @@ export default function Home() {
   const [bankTotalDeposit, setBankTotalDeposit] = useState('')
   const [nftOwner, setNftOwner] = useState(false)
   const [inputData, setInputData] = useState({ transferAddress: '', transferAmount: '', depositAmount: '', withdrawAmount: '' });
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<Item[]>([])
   const mumbaiId = '0x13881'
   const zeroAddress = "0x0000000000000000000000000000000000000000";
 
@@ -88,12 +106,25 @@ export default function Home() {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
 
-    const nftContract = new ethers.Contract(memberNFTAddress, MemberNFT.abi, signer);
-    const balance = await nftContract.balanceOf(addr);
+    const memberNFTContract = new ethers.Contract(memberNFTAddress, MemberNFT.abi, signer);
+    const balance = await memberNFTContract.balanceOf(addr);
     console.log(`nftBalances: ${balance.toNumber()}`);
 
     if (balance.toNumber() > 0) {
       setNftOwner(true);
+
+      for (let i = 0; i < balance.toNumber(); i++) {
+        const tokenId: string = await memberNFTContract.tokenOfOwnerByIndex(addr, i);
+        const ipfsTokenURI: string = await memberNFTContract.tokenURI(tokenId);
+        const tokenURI: string = ipfsTokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
+        const meta: Meta = await axios.get(tokenURI);
+
+        const name = meta.data.name;
+        const description = meta.data.description;
+        const imageURI = meta.data.image.replace('ipfs://', 'https://ipfs.io/ipfs/');
+        const item: Item = { tokenId, name, description, tokenURI, imageURI };
+        setItems(items => [...items, item]);
+      }
     } else { ' ' }
   }
 
@@ -270,6 +301,22 @@ export default function Home() {
                       引出
                     </button>
                   </form>
+                  {
+                    items.map((item, i) => (
+                      <div key={i} className="flex justify-center pl-1 py-2 mb-1">
+                        <div className="flex flex-col md:flex-row md:max-w-xl rounded-lg bg-white shadow-lg">
+                          <img className=" w-full h-96 md:h-auto object-cover md:w-48 rounded-t-lg md:rounded-none md:rounded-l-lg" src={item.imageURI} alt="" />
+                          <div className="p-6 flex flex-col justify-start">
+                            <h5 className="text-gray-900 text-xl font-medium mb-2">{item.name}</h5>
+                            <p className="text-gray-700 text-base mb-4">
+                              {item.description}
+                            </p>
+                            <p className="text-gray-600 text-xs">所有NFT# {item.tokenId.toNumber()}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  }
                 </>
               ) : (<></>)}
             </div>
